@@ -7,10 +7,12 @@ import java.io.Reader;
 import java.net.Socket;
 import java.nio.CharBuffer;
 
+import com.google.gson.Gson;
+import com.louch2010.dhaiy4j.cmd.CommandsResponse;
 import com.louch2010.dhaiy4j.constants.DhaiyConstant;
-import com.wangyin.commons.util.IOUtil;
-import com.wangyin.commons.util.Logger;
-import com.wangyin.commons.util.StringUtil;
+import com.louch2010.dhaiy4j.utils.IOUtil;
+import com.louch2010.dhaiy4j.utils.Logger;
+import com.louch2010.dhaiy4j.utils.StringUtil;
 
 /** 
   * @Description: Socket服务端，用于连接服务器进行读写操作
@@ -26,7 +28,9 @@ public class SocketClient {
 	private InputStream is;
 	private OutputStream os;
 	private boolean keepAlive;
+	
 	private Logger logger = new Logger();
+	private Gson gson = new Gson();
 	/**
 	  *description : 连接服务器
 	  *@param      : @param host 地址
@@ -94,12 +98,14 @@ public class SocketClient {
 	  *@return     : void
 	  *modified    : 1、2016年9月8日 下午5:59:23 由 luocihang 创建 	   
 	  */ 
-	public String sendCommand(String cmd)throws Exception{
+	public CommandsResponse sendCommand(String cmd)throws Exception{
 		write(cmd + DhaiyConstant.Command.SEND_END_CHAR);
 		String response = read(DhaiyConstant.Command.RECEIVE_END_CHAR);
 		//截取响应内容体
 		String body = response.substring(0, response.length() - DhaiyConstant.Command.RECEIVE_END_CHAR.length());
-		return body;
+		//解析响应体
+		CommandsResponse t = gson.fromJson(body, CommandsResponse.class);
+		return t;
 	}
 	
 	/**

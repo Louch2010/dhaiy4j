@@ -3,7 +3,15 @@ package com.louch2010.dhaiy4j;
 public class Test {
 	public static void main(String[] args) throws Exception {
 		Dhaiy client = new Dhaiy("127.0.0.1", 1334);
+		System.out.println(client.exist("bbb"));
 		System.out.println(client.set("aaa", "罗词航中华人民共和国"));
+		//client.close();
+		System.out.println(client.exist("aaa"));
+		System.out.println(client.get("aaa"));
+		System.out.println(client.delete("aaa"));
+		System.out.println(client.exist("aaa"));
+		System.out.println(client.get("aaa"));
+		
 		//System.out.println(client.get("name"));
 		//long start = System.currentTimeMillis();
 		

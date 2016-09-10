@@ -1,9 +1,12 @@
 package com.louch2010.dhaiy4j.client;
 
 import com.louch2010.dhaiy4j.cmd.Commands;
+import com.louch2010.dhaiy4j.cmd.CommandsResponse;
 import com.louch2010.dhaiy4j.constants.DhaiyConstant;
-import com.wangyin.commons.util.Logger;
-import com.wangyin.commons.util.StringUtil;
+import com.louch2010.dhaiy4j.constants.ServerErrorConstant;
+import com.louch2010.dhaiy4j.exception.DhaiyException;
+import com.louch2010.dhaiy4j.utils.Logger;
+import com.louch2010.dhaiy4j.utils.StringUtil;
 
 /**
  * @Description:
@@ -14,6 +17,7 @@ import com.wangyin.commons.util.StringUtil;
  */
 public class Client extends SocketClient implements Commands {
 	private Logger logger = new Logger();
+	private String token;
 	/**
 	  *description : 连接服务器
 	  *@param      : @param ip 地址
@@ -35,6 +39,7 @@ public class Client extends SocketClient implements Commands {
 		if(!StringUtil.isEmpty(pwd)){
 			sb.append(" " + DhaiyConstant.Connect.PASSWORD + pwd);
 		}
+		sb.append(" " + DhaiyConstant.Connect.PROTOCOL + DhaiyConstant.Connect.PROTOCOL_DEFAULT);
 		if(listenEvents != null && listenEvents.length > 0){
 			sb.append(" " + DhaiyConstant.Connect.EVENT);
 			for (int i = 0; i < listenEvents.length; i++) {
@@ -44,7 +49,12 @@ public class Client extends SocketClient implements Commands {
 				}
 			}
 		}
-		return sendCommand(sb.toString());
+		CommandsResponse response = sendCommand(sb.toString());
+		if(!DhaiyConstant.SUCCESS.equals(response.getCode())){
+			throw new DhaiyException("连接失败！", response);
+		}
+		token = response.getData().toString();
+		return token;
 	}
 	/**
 	  *description : 断开连接
@@ -54,7 +64,10 @@ public class Client extends SocketClient implements Commands {
 	  */ 
 	public void close(){
 		try {
-			sendCommand(DhaiyConstant.Exit.EXIT);
+			CommandsResponse response = sendCommand(DhaiyConstant.Exit.EXIT);
+			if(!DhaiyConstant.SUCCESS.equals(response.getCode())){
+				throw new DhaiyException(response);
+			}
 			closeConnect();
 		} catch (Exception e) {
 			logger.error("断开连接失败！", e);
@@ -73,7 +86,11 @@ public class Client extends SocketClient implements Commands {
 	public String set(String key, String value, int liveTime) {
 		String cmd = DhaiyConstant.Set.SET + " " + key + " " + value + " " + liveTime;
 		try {
-			return sendCommand(cmd);
+			CommandsResponse response = sendCommand(cmd);
+			if(!DhaiyConstant.SUCCESS.equals(response.getCode())){
+				throw new DhaiyException(response);
+			}
+			return response.getData() == null ? null : response.getData().toString();
 		} catch (Exception e) {
 			logger.error("设置值失败！", e);
 		}
@@ -102,11 +119,42 @@ public class Client extends SocketClient implements Commands {
 	public String get(String key) {
 		String cmd = DhaiyConstant.Get.GET + " " + key;
 		try {
-			return sendCommand(cmd);
+			CommandsResponse response = sendCommand(cmd);
+			//不存在
+			if(ServerErrorConstant.ITEM_NOT_EXIST.equals(response.getCode())){
+				return null;
+			}
+			if(!DhaiyConstant.SUCCESS.equals(response.getCode())){
+				throw new DhaiyException(response);
+			}
+			if(!DhaiyConstant.DataType.STRING.equals(response.getDataType())){
+				throw new DhaiyException("数据类型错误！" + response.getDataType());
+			}
+			return response.getData().toString();
 		} catch (Exception e) {
 			logger.error("获取值失败！", e);
 		}
 		return null;
+	}
+	/**
+	  *description : 删除
+	  *@param      : @param key
+	  *@param      : @return
+	  *@return     : boolean
+	  *modified    : 1、2016年9月9日 下午2:52:04 由 luocihang 创建 	   
+	  */ 
+	public boolean delete(String key){
+		String cmd = DhaiyConstant.Delete.DELETE + " " + key;
+		try {
+			CommandsResponse response = sendCommand(cmd);
+			if(!DhaiyConstant.SUCCESS.equals(response.getCode())){
+				throw new DhaiyException(response);
+			}
+			return true;
+		} catch (Exception e) {
+			logger.error("删除值失败！", e);
+		}
+		return false;
 	}
 	
 	/**
@@ -119,11 +167,25 @@ public class Client extends SocketClient implements Commands {
 	public boolean exist(String key){
 		String cmd = DhaiyConstant.Exist.EXIST + " " + key;
 		try {
-			sendCommand(cmd);
-			//TODO
+			CommandsResponse response = sendCommand(cmd);
+			if(!DhaiyConstant.SUCCESS.equals(response.getCode())){
+				throw new DhaiyException(response);
+			}
+			if(!DhaiyConstant.DataType.BOOL.equals(response.getDataType())){
+				throw new DhaiyException("数据类型错误！" + response.getDataType());
+			}
+			return (Boolean) response.getData();
 		} catch (Exception e) {
 			logger.error("获取值失败！", e);
 		}
-		return true;
+		return false;
+	}
+	
+	public String getToken() {
+		return token;
+	}
+	
+	public void setToken(String token) {
+		this.token = token;
 	}
 }

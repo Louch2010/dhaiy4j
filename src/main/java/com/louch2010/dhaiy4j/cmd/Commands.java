@@ -60,6 +60,15 @@ public interface Commands {
 	public String get(String key);
 	
 	/**
+	  *description : 删除
+	  *@param      : @param key
+	  *@param      : @return
+	  *@return     : boolean
+	  *modified    : 1、2016年9月9日 下午2:52:04 由 luocihang 创建 	   
+	  */ 
+	public boolean delete(String key);
+	
+	/**
 	  *description : 是否存在
 	  *@param      : @param key
 	  *@param      : @return
