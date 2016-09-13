@@ -28,17 +28,17 @@ public class ClientFactory implements PooledObjectFactory<Dhaiy> {
 	}
 
 	@Override
-	public void activateObject(PooledObject<Dhaiy> pooledJedis)
+	public void activateObject(PooledObject<Dhaiy> pool)
 			throws Exception {
-		Dhaiy dhaiy = pooledJedis.getObject();
+		Dhaiy dhaiy = pool.getObject();
 		if (dhaiy.getTable() != table) {
 			dhaiy.use(table);
 		}
 	}
 
 	@Override
-	public void destroyObject(PooledObject<Dhaiy> pooledJedis) throws Exception {
-		Dhaiy dhaiy = pooledJedis.getObject();
+	public void destroyObject(PooledObject<Dhaiy> pool) throws Exception {
+		Dhaiy dhaiy = pool.getObject();
 		if (dhaiy.isConnectAlive()) {
 			dhaiy.closeConnect();
 		}
@@ -59,14 +59,14 @@ public class ClientFactory implements PooledObjectFactory<Dhaiy> {
 	}
 
 	@Override
-	public void passivateObject(PooledObject<Dhaiy> pooledJedis)
+	public void passivateObject(PooledObject<Dhaiy> pooled)
 			throws Exception {
 		// TODO maybe should select db 0? Not sure right now.
 	}
 
 	@Override
-	public boolean validateObject(PooledObject<Dhaiy> pooledJedis) {
-		Dhaiy jedis = pooledJedis.getObject();
+	public boolean validateObject(PooledObject<Dhaiy> pool) {
+		Dhaiy jedis = pool.getObject();
 		try {
 			return jedis.getHost().equals(host)
 					&& jedis.getPort() == port
