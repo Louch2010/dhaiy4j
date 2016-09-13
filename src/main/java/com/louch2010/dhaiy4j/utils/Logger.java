@@ -1,14 +1,11 @@
 package com.louch2010.dhaiy4j.utils;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import java.util.Formatter;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.LoggerFactory;
 
 public class Logger {
-
-    private static final String NA = "UnknowClass";
 
     private static final org.slf4j.Logger ACCESS_LOGGER;
     private static final org.slf4j.Logger PERF_LOGGER;
@@ -34,7 +31,7 @@ public class Logger {
     	this(Logger.class);
     }
 
-    @SuppressWarnings("unchecked")
+    //@SuppressWarnings("unchecked")
     public Logger(Class<?> clazz) {
     	delegate = LoggerFactory.getLogger(clazz);
     }
@@ -118,8 +115,8 @@ public class Logger {
 
     private String logf(String format, Object... args) {
         StringBuilder sb = new StringBuilder();
-        java.util.Formatter formatter = new java.util.Formatter(sb);
-        formatter.format(format, args);
+        Formatter f = new Formatter(sb);
+        f.format(format, args);
         return sb.toString();
     }
 
@@ -255,76 +252,6 @@ public class Logger {
             delegate.error("StackTrace:", (Throwable) obj);
         } else {
             delegate.error(obj == null ? NULL : obj.toString());
-        }
-    }
-
-    private String getCallingClassName(String CLASSNAME) {
-        StringWriter sw = new StringWriter();
-        PrintWriter pw = new PrintWriter(sw);
-
-        (new Throwable()).printStackTrace(pw);
-        String stack = sw.toString();
-
-        // Given the current structure of the package, the line
-        // containing "org.apache.log4j.Category." should be printed just
-        // before the caller.
-
-        // This method of searching may not be fastest but it's safer
-        // than counting the stack depth which is not guaranteed to be
-        // constant across JVM implementations.
-        int ibegin = stack.lastIndexOf(CLASSNAME);
-        if (ibegin == -1) {
-            return NA;
-        }
-
-        ibegin = stack.indexOf(LINE_SEP, ibegin);
-        if (ibegin == -1) {
-            return NA;
-        }
-        ibegin += LINE_SEP_LEN;
-
-        // determine end of line
-        int iend = stack.indexOf(LINE_SEP, ibegin);
-        if (iend == -1) {
-            return NA;
-        }
-
-        // VA has a different stack trace format which doesn't
-        // need to skip the inital 'at'
-        // back up to first blank character
-        ibegin = stack.lastIndexOf("at ", iend);
-        if (ibegin == -1) {
-            return NA;
-        }
-        // Add 3 to skip "at ";
-        ibegin += 3;
-        // everything between is the requested stack item
-        String fullInfo = stack.substring(ibegin, iend);
-        // modify by shenjl never null
-//        if (fullInfo == null) {
-//            return NA;
-//        }
-
-        // Starting the search from '(' is safer because there is
-        // potentially a dot between the parentheses.
-        iend = fullInfo.lastIndexOf('(');
-        if (iend == -1) {
-            return NA;
-        }
-        iend = fullInfo.lastIndexOf('.', iend);
-
-        // This is because a stack trace in VisualAge looks like:
-        //java.lang.RuntimeException
-        //  java.lang.Throwable()
-        //  java.lang.Exception()
-        //  java.lang.RuntimeException()
-        //  void test.test.B.print()
-        //  void test.test.A.printIndirect()
-        //  void test.test.Run.main(java.lang.String [])
-        if (iend == -1) {
-            return NA;
-        } else {
-            return fullInfo.substring(0, iend);
         }
     }
 

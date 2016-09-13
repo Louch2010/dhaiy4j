@@ -46,6 +46,15 @@ public interface DhaiyConstant {
 	interface Delete {
 		String DELETE = "delete";
 	}
+	
+	interface Use {
+		String USE = "use";
+	}
+	
+	interface Ping {
+		String PING = "ping";
+		String PONG = "PONG";
+	}
 
 	interface Connect {
 		String CONNECT = "connect";

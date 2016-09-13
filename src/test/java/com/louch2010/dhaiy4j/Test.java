@@ -5,27 +5,30 @@ public class Test {
 		Dhaiy client = new Dhaiy("127.0.0.1", 1334);
 		System.out.println(client.exist("bbb"));
 		System.out.println(client.set("aaa", "罗词航中华人民共和国"));
-		//client.close();
+		//
 		System.out.println(client.exist("aaa"));
 		System.out.println(client.get("aaa"));
 		System.out.println(client.delete("aaa"));
 		System.out.println(client.exist("aaa"));
 		System.out.println(client.get("aaa"));
+		System.out.println(client.delete("aaa"));
 		
-		//System.out.println(client.get("name"));
-		//long start = System.currentTimeMillis();
+		System.out.println(client.get("name"));
 		
-		/*for (int i = 0; i < 10000; i++) {
+		
+		
+		
+		/*long start = System.currentTimeMillis();
+		for (int i = 0; i < 10000; i++) {
 			int time = (int) (10 * Math.random());
 			if (time ==0){
 				time = 10;
 			}
 			client.set("key_1_" + i, "value_" + i);
-		}*/
-		/*for (int i = 0; i < 10000; i++) {
-			client.get("key_1_" + i);
-		}*/
-		//long end = System.currentTimeMillis();
-		//System.out.println("耗时："+ (end - start));
+		}
+		long end = System.currentTimeMillis();
+		System.out.println("耗时："+ (end - start));*/
+		
+		client.close();
 	}
 }
