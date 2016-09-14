@@ -110,8 +110,7 @@ public class SocketClient {
 		write(cmd + DhaiyConstant.Command.SEND_END_CHAR);
 		String response = read(DhaiyConstant.Command.RECEIVE_END_CHAR);
 		// 截取响应内容体
-		String body = response.substring(0, response.length()
-				- DhaiyConstant.Command.RECEIVE_END_CHAR.length());
+		String body = response.substring(0, response.length() - DhaiyConstant.Command.RECEIVE_END_CHAR.length());
 		// 解析响应体
 		CommandsResponse t = gson.fromJson(body, CommandsResponse.class);
 		return t;

@@ -23,7 +23,7 @@ public class DhaiyPool {
 	private int connectionTimeout;
 	private int connectCoreSize;
 	private int connectMaxSize;
-	private int maxWaitMillis;
+	private int maxWaitSecond;
 	private boolean keepAlive;
 	
 	private static GenericObjectPool<Dhaiy> pool = null;
@@ -39,16 +39,20 @@ public class DhaiyPool {
 		GenericObjectPoolConfig conf = new GenericObjectPoolConfig();
 		conf.setMaxTotal(connectMaxSize);//最大连接数
 		conf.setMaxIdle(connectCoreSize);//最大空闲资源数
-		conf.setMaxWaitMillis(1000 * maxWaitMillis);//资源等待时间
+		conf.setMaxWaitMillis(1000 * maxWaitSecond);//资源等待时间
 		conf.setTestOnBorrow(true);//当取出资源时，校验其是否可用
 		ClientFactory factory = new ClientFactory(host, port, password, table,
 				event, connectionTimeout, keepAlive);
 		pool = new GenericObjectPool<Dhaiy>(factory,conf);
 	}
 	
+	public DhaiyPool(){
+		
+	}
+	
 	public DhaiyPool(String host, int port, String password, String table,
 			String[] event, int connectionTimeout, int connectCoreSize,
-			int connectMaxSize, boolean keepAlive, int maxWaitMillis) {
+			int connectMaxSize, boolean keepAlive, int maxWaitSecond) {
 		super();
 		this.host = host;
 		this.port = port;
@@ -57,7 +61,7 @@ public class DhaiyPool {
 		this.event = event;
 		this.connectionTimeout = connectionTimeout;
 		this.connectCoreSize = connectCoreSize;
-		this.maxWaitMillis = maxWaitMillis;
+		this.maxWaitSecond = maxWaitSecond;
 		this.connectMaxSize = connectMaxSize;
 		this.keepAlive = keepAlive;
 		init();
@@ -157,12 +161,12 @@ public class DhaiyPool {
 		this.connectCoreSize = connectCoreSize;
 	}
 
-	public int getMaxWaitMillis() {
-		return maxWaitMillis;
+	public int getMaxWaitSecond() {
+		return maxWaitSecond;
 	}
 
-	public void setMaxWaitMillis(int maxWaitMillis) {
-		this.maxWaitMillis = maxWaitMillis;
+	public void setMaxWaitSecond(int maxWaitSecond) {
+		this.maxWaitSecond = maxWaitSecond;
 	}
 
 	public int getConnectMaxSize() {
