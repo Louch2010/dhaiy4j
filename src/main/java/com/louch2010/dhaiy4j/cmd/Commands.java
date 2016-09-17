@@ -1,5 +1,7 @@
 package com.louch2010.dhaiy4j.cmd;
 
+import java.math.BigDecimal;
+
 /**
  * @Description: Dhaiy缓存命令
  * @author: luocihang
@@ -95,4 +97,53 @@ public interface Commands {
 	  *modified    : 1、2016年9月13日 下午9:55:18 由 luocihang 创建 	   
 	  */ 
 	public String ping();
+	
+	/**
+	  *description : 设置值
+	  *@param      : @param key
+	  *@param      : @param value
+	  *@param      : @return
+	  *@return     : BigDecimal
+	  *modified    : 1、2016年9月17日 下午8:03:35 由 luocihang 创建 	   
+	  */ 
+	public BigDecimal nset(String key, BigDecimal value);
+	
+	/**
+	  *description : 设置带生命周期的值
+	  *@param      : @param key
+	  *@param      : @param value
+	  *@param      : @param liveTime
+	  *@param      : @return
+	  *@return     : BigDecimal
+	  *modified    : 1、2016年9月17日 下午8:03:38 由 luocihang 创建 	   
+	  */ 
+	public BigDecimal nset(String key, BigDecimal value, int liveTime);
+	
+	/**
+	  *description : 获取数值
+	  *@param      : @param key
+	  *@param      : @return
+	  *@return     : BigDecimal
+	  *modified    : 1、2016年9月17日 下午8:03:43 由 luocihang 创建 	   
+	  */ 
+	public BigDecimal nget(String key);
+	
+	/**
+	  *description : 增加1
+	  *@param      : @param key
+	  *@param      : @return
+	  *@return     : BigDecimal
+	  *modified    : 1、2016年9月17日 下午8:03:45 由 luocihang 创建 	   
+	  */ 
+	public BigDecimal incr(String key);
+	
+	/**
+	  *description : 增加指定值
+	  *@param      : @param key
+	  *@param      : @param by
+	  *@param      : @return
+	  *@return     : BigDecimal
+	  *modified    : 1、2016年9月17日 下午8:03:47 由 luocihang 创建 	   
+	  */ 
+	public BigDecimal incrBy(String key, BigDecimal by);
 }

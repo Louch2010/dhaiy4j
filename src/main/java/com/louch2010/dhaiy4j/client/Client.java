@@ -1,5 +1,7 @@
 package com.louch2010.dhaiy4j.client;
 
+import java.math.BigDecimal;
+
 import com.louch2010.dhaiy4j.cmd.Commands;
 import com.louch2010.dhaiy4j.cmd.CommandsResponse;
 import com.louch2010.dhaiy4j.constants.DhaiyConstant;
@@ -55,10 +57,7 @@ public class Client extends SocketClient implements Commands {
 			}
 			this.event = listenEvents;
 		}
-		CommandsResponse response = sendCommand(sb.toString());
-		if(!DhaiyConstant.SUCCESS.equals(response.getCode())){
-			throw new DhaiyException("连接失败！", response);
-		}
+		CommandsResponse response = sendCommand(sb.toString(), true, "连接失败！");
 		this.token = response.getData().toString();
 		return token;
 	}
@@ -70,10 +69,7 @@ public class Client extends SocketClient implements Commands {
 	  */ 
 	public void close(){
 		try {
-			CommandsResponse response = sendCommand(DhaiyConstant.Exit.EXIT);
-			if(!DhaiyConstant.SUCCESS.equals(response.getCode())){
-				throw new DhaiyException(response);
-			}
+			sendCommand(DhaiyConstant.Exit.EXIT, true);
 			closeConnect();
 		} catch (Exception e) {
 			logger.error("断开连接失败！", e);
@@ -92,10 +88,7 @@ public class Client extends SocketClient implements Commands {
 	public String set(String key, String value, int liveTime) {
 		String cmd = DhaiyConstant.Set.SET + " " + key + " " + value + " " + liveTime;
 		try {
-			CommandsResponse response = sendCommand(cmd);
-			if(!DhaiyConstant.SUCCESS.equals(response.getCode())){
-				throw new DhaiyException(response);
-			}
+			CommandsResponse response = sendCommand(cmd, true);
 			return response.getData() == null ? null : response.getData().toString();
 		} catch (Exception e) {
 			logger.error("设置值失败！", e);
@@ -125,7 +118,7 @@ public class Client extends SocketClient implements Commands {
 	public String get(String key) {
 		String cmd = DhaiyConstant.Get.GET + " " + key;
 		try {
-			CommandsResponse response = sendCommand(cmd);
+			CommandsResponse response = sendCommand(cmd, false);
 			//不存在
 			if(ServerErrorConstant.ITEM_NOT_EXIST.equals(response.getCode())){
 				return null;
@@ -152,7 +145,7 @@ public class Client extends SocketClient implements Commands {
 	public boolean delete(String key){
 		String cmd = DhaiyConstant.Delete.DELETE + " " + key;
 		try {
-			CommandsResponse response = sendCommand(cmd);
+			CommandsResponse response = sendCommand(cmd, false);
 			//不存在
 			if(ServerErrorConstant.ITEM_NOT_EXIST.equals(response.getCode())){
 				return false;
@@ -176,10 +169,7 @@ public class Client extends SocketClient implements Commands {
 	public boolean use(String table){
 		String cmd = DhaiyConstant.Use.USE + " " + table;
 		try {
-			CommandsResponse response = sendCommand(cmd);
-			if(!DhaiyConstant.SUCCESS.equals(response.getCode())){
-				throw new DhaiyException(response);
-			}
+			sendCommand(cmd, true);
 			return true;
 		} catch (Exception e) {
 			logger.error("删除值失败！", e);
@@ -196,10 +186,7 @@ public class Client extends SocketClient implements Commands {
 	public boolean exist(String key){
 		String cmd = DhaiyConstant.Exist.EXIST + " " + key;
 		try {
-			CommandsResponse response = sendCommand(cmd);
-			if(!DhaiyConstant.SUCCESS.equals(response.getCode())){
-				throw new DhaiyException(response);
-			}
+			CommandsResponse response = sendCommand(cmd, true);
 			if(!DhaiyConstant.DataType.BOOL.equals(response.getDataType())){
 				throw new DhaiyException("数据类型错误！" + response.getDataType());
 			}
@@ -219,14 +206,107 @@ public class Client extends SocketClient implements Commands {
 	public String ping(){
 		String cmd = DhaiyConstant.Ping.PING;
 		try {
-			CommandsResponse response = sendCommand(cmd);
-			if(!DhaiyConstant.SUCCESS.equals(response.getCode())){
-				throw new DhaiyException(response);
-			}
+			CommandsResponse response = sendCommand(cmd, true);
 			if(!DhaiyConstant.DataType.STRING.equals(response.getDataType())){
 				throw new DhaiyException("数据类型错误！" + response.getDataType());
 			}
 			return (String) response.getData();
+		} catch (Exception e) {
+			logger.error("获取值失败！", e);
+		}
+		return null;
+	}
+	
+	/**
+	  *description : 设置值
+	  *@param      : @param key
+	  *@param      : @param value
+	  *@param      : @return
+	  *@return     : BigDecimal
+	  *modified    : 1、2016年9月17日 下午8:03:35 由 luocihang 创建 	   
+	  */ 
+	public BigDecimal nset(String key, BigDecimal value){
+		return nset(key, value, 0);
+	}
+	
+	/**
+	  *description : 设置带生命周期的值
+	  *@param      : @param key
+	  *@param      : @param value
+	  *@param      : @param liveTime
+	  *@param      : @return
+	  *@return     : BigDecimal
+	  *modified    : 1、2016年9月17日 下午8:03:38 由 luocihang 创建 	   
+	  */ 
+	public BigDecimal nset(String key, BigDecimal value, int liveTime){
+		String cmd = DhaiyConstant.Set.NSET + " " + key + " " + value.toString() + " " + liveTime;
+		try {
+			CommandsResponse response = sendCommand(cmd, true);
+			if(!DhaiyConstant.DataType.NUMBER.equals(response.getDataType())){
+				throw new DhaiyException("数据类型错误！" + response.getDataType());
+			}
+			return response.getData() == null ? null : new BigDecimal(response.getData().toString());
+		} catch (Exception e) {
+			logger.error("设置值失败！", e);
+		}
+		return null;
+	}
+	
+	/**
+	  *description : 获取数值
+	  *@param      : @param key
+	  *@param      : @return
+	  *@return     : BigDecimal
+	  *modified    : 1、2016年9月17日 下午8:03:43 由 luocihang 创建 	   
+	  */ 
+	public BigDecimal nget(String key){
+		String cmd = DhaiyConstant.Get.NGET + " " + key;
+		try {
+			CommandsResponse response = sendCommand(cmd, false);
+			//不存在
+			if(ServerErrorConstant.ITEM_NOT_EXIST.equals(response.getCode())){
+				return null;
+			}
+			if(!DhaiyConstant.SUCCESS.equals(response.getCode())){
+				throw new DhaiyException(response);
+			}
+			if(!DhaiyConstant.DataType.NUMBER.equals(response.getDataType())){
+				throw new DhaiyException("数据类型错误！" + response.getDataType());
+			}
+			return new BigDecimal(response.getData().toString());
+		} catch (Exception e) {
+			logger.error("获取值失败！", e);
+		}
+		return null;
+	}
+	
+	/**
+	  *description : 增加1
+	  *@param      : @param key
+	  *@param      : @return
+	  *@return     : BigDecimal
+	  *modified    : 1、2016年9月17日 下午8:03:45 由 luocihang 创建 	   
+	  */ 
+	public BigDecimal incr(String key){
+		return incrBy(key, BigDecimal.ZERO);
+	}
+	
+	/**
+	  *description : 增加指定值
+	  *@param      : @param key
+	  *@param      : @param by
+	  *@param      : @return
+	  *@return     : BigDecimal
+	  *modified    : 1、2016年9月17日 下午8:03:47 由 luocihang 创建 	   
+	  */ 
+	public BigDecimal incrBy(String key, BigDecimal by){
+		String cmd = DhaiyConstant.Incr.INCRBY + " " + key + " " + by.toString();
+		try {
+			CommandsResponse response = sendCommand(cmd, true);
+			if(!DhaiyConstant.DataType.NUMBER.equals(response.getDataType())){
+				throw new DhaiyException("数据类型错误！" + response.getDataType());
+			}
+			return new BigDecimal(response.getData().toString());
 		} catch (Exception e) {
 			logger.error("获取值失败！", e);
 		}

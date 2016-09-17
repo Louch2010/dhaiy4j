@@ -29,10 +29,12 @@ public interface DhaiyConstant {
 
 	interface Set {
 		String SET = "set";
+		String NSET = "nset";
 	}
 
 	interface Get {
 		String GET = "get";
+		String NGET = "nget";
 	}
 
 	interface Exit {
@@ -54,6 +56,11 @@ public interface DhaiyConstant {
 	interface Ping {
 		String PING = "ping";
 		String PONG = "PONG";
+	}
+	
+	interface Incr{
+		String INCR = "incr";
+		String INCRBY = "incrby";
 	}
 
 	interface Connect {

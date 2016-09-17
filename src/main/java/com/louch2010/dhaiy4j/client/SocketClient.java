@@ -10,6 +10,7 @@ import java.nio.CharBuffer;
 import com.google.gson.Gson;
 import com.louch2010.dhaiy4j.cmd.CommandsResponse;
 import com.louch2010.dhaiy4j.constants.DhaiyConstant;
+import com.louch2010.dhaiy4j.exception.DhaiyException;
 import com.louch2010.dhaiy4j.utils.IOUtil;
 import com.louch2010.dhaiy4j.utils.Logger;
 import com.louch2010.dhaiy4j.utils.StringUtil;
@@ -106,14 +107,33 @@ public class SocketClient {
 	 * @param : @throws Exception
 	 * @return : void modified : 1、2016年9月8日 下午5:59:23 由 luocihang 创建
 	 */
-	public CommandsResponse sendCommand(String cmd) throws Exception {
+	public CommandsResponse sendCommand(String cmd, boolean checkSuc, String errorMsg) throws Exception {
 		write(cmd + DhaiyConstant.Command.SEND_END_CHAR);
 		String response = read(DhaiyConstant.Command.RECEIVE_END_CHAR);
 		// 截取响应内容体
 		String body = response.substring(0, response.length() - DhaiyConstant.Command.RECEIVE_END_CHAR.length());
 		// 解析响应体
 		CommandsResponse t = gson.fromJson(body, CommandsResponse.class);
+		if(checkSuc && !DhaiyConstant.SUCCESS.equals(t.getCode())){
+			if(!StringUtil.isEmpty(errorMsg)){
+				throw new DhaiyException(errorMsg, t);
+			}
+			throw new DhaiyException(response);
+		}
 		return t;
+	}
+	
+	/**
+	  *description : 发送命令
+	  *@param      : @param cmd
+	  *@param      : @param checkSuc
+	  *@param      : @return
+	  *@param      : @throws Exception
+	  *@return     : CommandsResponse
+	  *modified    : 1、2016年9月17日 下午8:18:11 由 luocihang 创建 	   
+	  */ 
+	public CommandsResponse sendCommand(String cmd, boolean checkSuc) throws Exception {
+		return sendCommand(cmd, checkSuc, null);
 	}
 
 	/**
